@@ -1,0 +1,68 @@
+﻿@page "/usuarios"
+@using BlazorApp_Usuarios.Models
+
+@using BlazorApp_Usuarios.Components
+@inject HttpClient _http
+
+<div class="content-wrapper">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="col-12">
+                <h1 class="text-center text-primary">Lista de Usuarios</h1>
+            </div>
+        </div>
+    </div>
+    <section class="content">
+        <div class="table-responsive">
+            @if(usuarios.Any()){
+                <table class="table table-striped table-info table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">ID</th>
+                            <th scope="col">Nombre</th>
+                            <th scope="col">Username</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Teléfono</th>
+                            <th scope="col">WebSite</th>
+                            <th scope="col">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in usuarios)
+                        {
+                            <tr>
+                                <th>#</th>
+                                <th>@user.name</th>
+                                <th>@user.username</th>
+                                <th>@user.email</th>
+                                <th>@user.phone</th>
+                                <th>@user.website</th>
+                                <th class="m-2">
+                                    <a class="btn btn-primary btn-sm" href="usuario/@user.id">Detalles </a>
+                                </th>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }else{
+                <Spinner mensaje="@mensajeDelPadre" />
+            }
+        </div>
+    </section>
+</div>
+@code {
+    private List<Users> usuarios = new List<Users>();
+    string mensajeDelPadre = "Cargando los usuarios";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Task.Delay(2000);
+        usuarios = await GetAll();
+    }
+
+    private async Task<List<Users>> GetAll()
+    {
+        var request = await _http.GetFromJsonAsync<IEnumerable<Users>>("/users");
+        return request.ToList();
+    }
+}

@@ -1,0 +1,58 @@
+﻿@page "/usuario/{id}"
+
+
+@inject HttpClient _http
+@inject NavigationManager _nav
+@using BlazorApp_Usuarios.Models
+@using BlazorApp_Usuarios.Components
+
+@code {
+    [Parameter]
+    public string? id { get; set; }
+    public bool isLoading = true;
+
+    public Users usuario = new();
+    public string mensajeDelPadre = "Cargando los datos del usuario.";
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (id != null)
+        {
+            var request = await _http.GetAsync($"/users/{id}");
+            var _usuario = await request.Content.ReadFromJsonAsync<Users>();
+            if (_usuario != null)
+            {
+                await Task.Delay(1500);
+                usuario = _usuario;
+                isLoading = false;
+            }
+            else
+            {
+                _nav.NavigateTo("/usuarios");
+            }
+        }
+        else
+        {
+            _nav.NavigateTo("/");
+        }
+    }
+}
+
+
+@if(isLoading){
+    <Spinner mensaje="@mensajeDelPadre" />
+}else{
+    <div class="container">
+        <div class="card" style="width: 18rem">
+            <div class="card-body">
+                <h5 class="card-title">Información del Usuario</h5>
+                <h6 class="card-subtitle mb-2 text-muted">
+                    @usuario.name - @usuario.username
+                </h6>
+                <p class="card-text">
+                   @usuario.website
+                </p>
+            </div>
+        </div>
+    </div>
+}
